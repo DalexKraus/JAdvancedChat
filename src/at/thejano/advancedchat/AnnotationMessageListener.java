@@ -1,6 +1,7 @@
 package at.thejano.advancedchat;
 
 import at.dalex.playtime.PlayTimeAPI;
+import at.thejano.absentapi.JAbsentAPI;
 import at.thejano.advancedchat.util.ColorUtils;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -38,8 +39,25 @@ public class AnnotationMessageListener implements Listener {
                     continue;
                 }
 
-                String hoverText = "§3Online seit§7: " + PlayTimeAPI.getSessionPlayTime(player.getUniqueId())
-                        + "\n§9Gesamte Spielzeit§7: " + PlayTimeAPI.getTotalPlayTime(player.getUniqueId());
+                int playtimeSession = PlayTimeAPI.getSessionPlayTime(player.getUniqueId());
+                int playtimeTotal = PlayTimeAPI.getTotalPlayTime(player.getUniqueId());
+
+                String[] sessionSegments = createTimeString(playtimeSession).split(":");
+                String[] totalTimeSegments = createTimeString(playtimeTotal).split(":");
+
+                String sessionString    = sessionSegments[0]    + " Stunden " + sessionSegments[1]   + " Minuten " + sessionSegments[2]     + " Sekunden";
+                String totalTimeString  = totalTimeSegments[0]  + " Stunden " + totalTimeSegments[1] + " Minuten " + totalTimeSegments[2]   + " Sekunden";
+
+                int afkTime = JAbsentAPI.getAFKTime(player.getUniqueId());
+                String afkString = afkTime > 20 ? "§8AFK seit §e" + afkTime + " §8Sekunden" : "";
+
+                String hoverText = "§3Online seit§7: " + sessionString
+                        + "\n§9Gesamte Spielzeit§7: " + totalTimeString;
+
+                if (afkString != "") {
+                    hoverText += "\n\n" + afkString;
+                }
+
                 textComponent.setText("§c@" + userNameWithColor + lastColorCode + " ");
                 textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverText).create()));
             }
@@ -50,6 +68,14 @@ public class AnnotationMessageListener implements Listener {
 
         sendMessageToAllPlayers(finalComponent);
         e.setCancelled(true);
+    }
+
+    private String createTimeString(int passedSeconds) {
+        int hours = passedSeconds / 3600;
+        int minutes = (passedSeconds % 3600) / 60;
+        int seconds = passedSeconds % 60;
+
+        return String.format("%d:%d:%d", hours, minutes, seconds);
     }
 
     /**
