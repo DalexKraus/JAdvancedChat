@@ -1,5 +1,6 @@
 package at.thejano.advancedchat;
 
+import at.dalex.playtime.PlayTimeAPI;
 import at.thejano.advancedchat.util.ColorUtils;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -37,7 +38,8 @@ public class AnnotationMessageListener implements Listener {
                     continue;
                 }
 
-                String hoverText = "§3Online seit§7:\n§9Gesamte Spielzeit§7:";
+                String hoverText = "§3Online seit§7: " + PlayTimeAPI.getSessionPlayTime(player.getUniqueId())
+                        + "\n§9Gesamte Spielzeit§7: " + PlayTimeAPI.getTotalPlayTime(player.getUniqueId());
                 textComponent.setText("§c@" + userNameWithColor + lastColorCode + " ");
                 textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverText).create()));
             }
